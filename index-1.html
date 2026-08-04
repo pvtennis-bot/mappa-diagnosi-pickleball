@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mappa Diagnosi — Pickleball 3.5-5.5</title>
+<style>
+  :root{
+    --bg:#0b0b0c; --bg2:#151517; --card:#1b1b1e; --card2:#232326;
+    --gold:#D4AF37; --gold-dim:#a8863f; --text:#f0eee8; --text-dim:#a9a6a0;
+    --giallo:#e8c400; --verde:#3fae4a; --arancione:#e8791a; --rosso:#d43a3a; --viola:#8a4fd4; --bianco:#e9e9e9;
+    --A:#3fae4a; --B:#7fb84a; --C:#e8791a; --D:#d43a3a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:40px;}
+  header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0b0b0c 85%,transparent);padding:14px 16px 8px;border-bottom:1px solid #2a2a2d;}
+  h1{font-size:1.05rem;margin:0 0 2px;color:var(--gold);letter-spacing:.3px;}
+  .sub{font-size:.75rem;color:var(--text-dim);}
+  .progress{display:flex;gap:6px;margin-top:10px;}
+  .progress div{flex:1;height:4px;border-radius:3px;background:#2a2a2d;}
+  .progress div.active{background:var(--gold);}
+  .progress div.done{background:var(--gold-dim);}
+  main{padding:14px 16px 90px;max-width:640px;margin:0 auto;}
+  .card{background:var(--card);border:1px solid #2a2a2d;border-radius:14px;padding:16px;margin-bottom:14px;}
+  .card h2{font-size:1rem;color:var(--gold);margin:0 0 8px;}
+  .card h3{font-size:.9rem;color:var(--text);margin:14px 0 8px;}
+  .muted{color:var(--text-dim);font-size:.85rem;line-height:1.4;}
+  .note{background:#20200f;border:1px solid #4a4620;border-radius:10px;padding:10px 12px;font-size:.8rem;color:#e8dca0;margin:10px 0;}
+  .warn{background:#241414;border:1px solid #4a2020;border-radius:10px;padding:10px 12px;font-size:.8rem;color:#e8b0a0;margin:10px 0;}
+  button{font-family:inherit;cursor:pointer;}
+  .btn{display:block;width:100%;padding:13px;border-radius:11px;border:none;font-size:.95rem;font-weight:600;background:var(--gold);color:#1a1200;margin-top:6px;}
+  .btn:active{transform:scale(.98);}
+  .btn.secondary{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);}
+  .btn.ghost{background:transparent;border:1px solid #333;color:var(--text-dim);}
+  .btn:disabled{opacity:.4;}
+  .row{display:flex;gap:8px;margin-top:8px;}
+  .row .btn{margin-top:0;}
+  .situ-block{border-top:1px solid #2a2a2d;padding-top:14px;margin-top:14px;}
+  .situ-block:first-child{border-top:none;padding-top:0;margin-top:0;}
+  .situ-title{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:6px;}
+  .fam-badge{font-size:.65rem;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.3px;}
+  .fam-potenza{background:#1e3a5f;color:#9dc2f0;}
+  .fam-tocco{background:#4a3d1e;color:#e8cf9d;}
+  .fam-entrambe{background:#333;color:#ccc;}
+  .pills{display:flex;flex-wrap:wrap;gap:6px;}
+  .pill{flex:1 1 30%;min-width:88px;border:2px solid #333;border-radius:10px;padding:8px 6px;text-align:center;font-size:.7rem;line-height:1.25;color:#ddd;background:#111;}
+  .pill .lvl{display:block;font-weight:700;font-size:.78rem;margin-bottom:2px;}
+  .pill.selected{border-color:var(--gold);background:#2a2410;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+  .dot-3\.0{background:var(--giallo);} .dot-3\.5{background:var(--verde);} .dot-4\.0{background:var(--arancione);}
+  .dot-4\.5{background:var(--rosso);} .dot-5\.0{background:var(--viola);} .dot-bianco{background:var(--bianco);border:1px solid #999;}
+  .test-info{background:var(--card2);border-radius:10px;padding:10px 12px;font-size:.8rem;margin:8px 0;}
+  .test-info b{color:var(--gold);}
+  input[type=number]{width:70px;background:#111;border:1px solid #333;color:var(--text);border-radius:8px;padding:8px;font-size:1rem;text-align:center;}
+  .esito{margin-top:8px;font-size:.85rem;padding:8px 10px;border-radius:8px;}
+  .esito.pass{background:#122a14;color:#8fe0a0;}
+  .esito.fail{background:#2a1414;color:#e0a08f;}
+  .checklist label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;font-size:.85rem;line-height:1.35;border-bottom:1px solid #232326;}
+  .checklist input[type=checkbox]{margin-top:2px;width:18px;height:18px;accent-color:var(--gold);flex-shrink:0;}
+  .scale-item{margin:10px 0;}
+  .scale-item p{font-size:.83rem;margin:0 0 6px;}
+  .scale-opts{display:flex;gap:6px;}
+  .scale-opts button{flex:1;padding:9px 2px;border-radius:8px;border:1px solid #333;background:#111;color:#ccc;font-size:.75rem;}
+  .scale-opts button.sel{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700;}
+  .result-badge{display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;padding:5px 0;border-radius:8px;width:30px;height:30px;color:#111;}
+  table.map{width:100%;border-collapse:collapse;font-size:.72rem;margin-top:8px;}
+  table.map th{color:var(--gold);font-size:.62rem;padding:5px 3px;text-align:center;border-bottom:1px solid #333;}
+  table.map td{padding:6px 3px;text-align:center;border-bottom:1px solid #232326;}
+  table.map td.sit{text-align:left;font-weight:600;font-size:.7rem;}
+  .lvl-badge{display:inline-block;padding:3px 7px;border-radius:20px;font-size:.68rem;font-weight:700;color:#111;}
+  .letter{display:inline-flex;width:24px;height:24px;border-radius:6px;align-items:center;justify-content:center;font-weight:800;color:#111;font-size:.72rem;}
+  .pattern-box{background:linear-gradient(135deg,#1e1a08,#151517);border:1px solid var(--gold-dim);border-radius:12px;padding:14px;margin-top:12px;}
+  .pattern-box h3{color:var(--gold);margin:0 0 6px;font-size:.95rem;}
+  footer.nav{position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid #2a2a2d;padding:10px 16px;display:flex;gap:10px;}
+  footer.nav .btn{margin:0;}
+  .hidden{display:none !important;}
+  .home-hero{text-align:center;padding:20px 0 10px;}
+  .home-hero .big{font-size:1.6rem;color:var(--gold);font-weight:700;margin-bottom:4px;}
+  ul.clean{padding-left:18px;margin:6px 0;font-size:.85rem;color:var(--text-dim);}
+  ul.clean li{margin-bottom:4px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🥒 Mappa Diagnosi</h1>
+  <div class="sub">Continuiamo a Giocare a Pickleball — Da 3.5 a 5.5</div>
+  <div class="progress" id="progressBar">
+    <div id="pb0"></div><div id="pb1"></div><div id="pb2"></div><div id="pb3"></div>
+  </div>
+</header>
+<main id="main"></main>
+<footer class="nav" id="navBar"></footer>
+
+<script>
+/* ============ DATI DAL LIBRO (bozza-425) ============ */
+const LEVELS = [3.0,3.5,4.0,4.5,5.0];
+const LEVEL_LABEL = {3.0:"3.0",3.5:"3.5",4.0:"4.0",4.5:"4.5",5.0:"5.0+"};
+const LEVEL_COLOR = {3.0:"var(--giallo)",3.5:"var(--verde)",4.0:"var(--arancione)",4.5:"var(--rosso)",5.0:"var(--viola)","sotto":"var(--bianco)"};
+const LEVEL_NAME  = {3.0:"Giallo",3.5:"Verde",4.0:"Arancione",4.5:"Rosso",5.0:"Viola","sotto":"Bianco"};
+
+const FASE1 = {
+  3.0:{potenza:"F3", tocco:"K intera", soglia:8},
+  3.5:{potenza:"F2", tocco:"KX o KD", soglia:8},
+  4.0:{potenza:"F1", tocco:"KC", soglia:8},
+  4.5:{potenza:"F1", tocco:"KC", soglia:9},
+  5.0:{potenza:"F1", tocco:"KC", soglia:10},
+};
+
+const SITUAZIONI = [
+ {key:"terzocolpo", nome:"Terzo Colpo", famiglia:"ENTRAMBE", cap:8,
+  fase0:{3.0:"drop spesso impreciso",3.5:"drop basso, incostante",4.0:"scelgo drop o drive",4.5:"sequenza drive→drop fluida",5.0:"gesto invisibile all'avversario"},
+  feed:"Da baseline opposta, stesso lato (non diagonale)"},
+ {key:"transizione", nome:"Transizione", famiglia:"TOCCO", cap:9,
+  fase0:{3.0:"avanzo a scatti",3.5:"split step non sempre giusto",4.0:"leggo rosso/verde bene",4.5:"torno indietro per scelta",5.0:"non la sento come fase a sé"},
+  feed:"Da linea NVZ opposta, stesso lato"},
+ {key:"kitchen", nome:"Kitchen / Dink", famiglia:"TOCCO", cap:10,
+  fase0:{3.0:"regge pochi scambi",3.5:"tengo lo scambio",4.0:"costruisco con pazienza",4.5:"l'hold è una scelta",5.0:"il punto si decide qui"},
+  feed:"Da linea NVZ opposta, diagonale"},
+ {key:"difesa", nome:"Difesa", famiglia:"TOCCO", cap:12,
+  fase0:{3.0:"spesso in affanno",3.5:"resetto ma non sempre rientro",4.0:"reset-rientro-riattacco fluido",4.5:"la difesa apre il mio attacco",5.0:"difendo raramente"},
+  feed:"Da linea NVZ opposta, diagonale, intensità aggressiva"},
+ {key:"servizio", nome:"Servizio", famiglia:"POTENZA", cap:6,
+  fase0:{3.0:"spesso in rete o fuori",3.5:"affidabile, ma corto",4.0:"profondo e vario",4.5:"arma tattica, scelgo io",5.0:"variazione totale"},
+  feed:"Autoalimentato — nessuno lancia la palla"},
+ {key:"risposta", nome:"Risposta", famiglia:"POTENZA", cap:7,
+  fase0:{3.0:"spesso corta",3.5:"profonda, ma prevedibile",4.0:"profonda, avanzo sempre",4.5:"costruisco già il 4° colpo",5.0:"adatto tutto al servizio"},
+  feed:"Da baseline, diagonale (regola del servizio)"},
+ {key:"volee", nome:"Volée / Attacco", famiglia:"POTENZA", cap:11,
+  fase0:{3.0:"attacco solo palle comode",3.5:"riconosco il momento, non sempre chiudo",4.0:"costruisco e chiudo spesso",4.5:"sequenza fino alla chiusura",5.0:"il momento lo sento subito"},
+  feed:"Da linea NVZ opposta, diagonale"},
+];
+
+const GAMBE_ITEMS = [
+ "Ho fatto lo split step al momento giusto (contatto dell'avversario)?",
+ "Le ginocchia erano basse prima dell'impatto?",
+ "Se sono indietreggiato, è stato per scelta tattica, non perché in ritardo sulla palla?",
+ "In posizione pronta, il peso era sugli avampiedi, non sui talloni?",
+ "Dopo il colpo resto basso e fermo, pronto al successivo, senza alzarmi di scatto?"
+];
+const TECNICA_POTENZA_ITEMS = [
+ "Il peso si è spostato da dietro a davanti nel colpo?",
+ "L'anca ha ruotato prima della spalla, non insieme, non dopo?",
+ "Il punto di contatto è sempre nella stessa posizione, davanti al corpo?",
+ "Ho usato topspin, non slice, nella maggior parte dei colpi?",
+ "Il follow-through è completo, non troncato a metà?"
+];
+const TECNICA_TOCCO_ITEMS = [
+ "Impugnatura Continental con tensione 2-3, non stretta?",
+ "Ho assorbito la palla, non l'ho colpita, faccia aperta e ferma?",
+ "Il movimento è nato dalla spalla, non dal polso?",
+ "La racchetta era già nella posizione giusta prima dell'impatto, non in ritardo?",
+ "Ho mantenuto la palla bassa sopra la rete, non alta e attaccabile?"
+];
+const TATTICA_ITEMS = [
+ "Guardo l'altezza della palla prima di scegliere il colpo, sopra rete attacco, sotto rete gioco basso?",
+ "Non attacco se sono fuori equilibrio, allungato o fuori campo, in quei casi rimando basso?",
+ "Ho un piano principale chiaro prima del punto?",
+ "Se il piano principale non è eseguibile, ho un'alternativa pronta invece di forzare?",
+ "Nello scambio di dink resto paziente e aspetto la palla giusta invece di accelerare a caso?",
+ "Nel riscaldamento osservo i punti deboli dell'avversario?",
+ "Indirizzo i colpi verso il punto debole identificato, non a caso?",
+ "Dopo ogni punto so spiegare perché ho scelto quel colpo, non è stato casuale?",
+ "Comunico con il compagno su chi prende la palla e le chiamate vicine alla linea?",
+ "Cambio tattica durante la partita se qualcosa non funziona, invece di ripetere lo stesso schema?"
+];
+const MENTALE_ITEMS = [
+ {q:"Quanto la mia attenzione era sul punto di contatto invece che sull'ansia del risultato?", opts:["1 = mai","2 = raramente","3 = spesso","4 = quasi sempre"]},
+ {q:"Dopo un errore, sono riuscito a \"resettare\" prima del colpo successivo?", opts:["1 = mai","2 = raramente","3 = spesso","4 = quasi sempre"]},
+ {q:"La tensione dell'impugnatura è rimasta nel range corretto (3-4) anche sotto pressione?", opts:["1 = sempre alta","2 = spesso alta","3 = quasi sempre giusta","4 = sempre giusta"]},
+];
+
+/* ============ STATO ============ */
+let screen = "home";
+let fase0 = {};      // key -> livello dichiarato
+let fase1 = {};      // key -> {risultato, livelloFinale}
+let gambeCheck = [false,false,false,false,false];
+let tpCheck = [false,false,false,false,false];
+let ttCheck = [false,false,false,false,false];
+let ttaCheck = new Array(10).fill(false);
+let mentaleVals = [null,null,null];
+
+/* ============ HELPERS SCORING ============ */
+function letterFrom5(count){ return count<=1?"D":count<=3?"C":count===4?"B":"A"; }
+function letterFrom10(count){ return count<=2?"D":count<=5?"C":count<=8?"B":"A"; }
+function letterFromMentale(sum){ return sum<=5?"D":sum<=8?"C":sum<=10?"B":"A"; }
+const RANK = {D:1,C:2,B:3,A:4};
+function worseLetter(a,b){ return RANK[a]<=RANK[b]?a:b; }
+function letterColor(l){ return {A:"var(--A)",B:"var(--B)",C:"var(--C)",D:"var(--D)"}[l]; }
+
+function countChecked(arr){ return arr.filter(Boolean).length; }
+
+function gambeLetter(){ return letterFrom5(countChecked(gambeCheck)); }
+function tpLetter(){ return letterFrom5(countChecked(tpCheck)); }
+function ttLetter(){ return letterFrom5(countChecked(ttCheck)); }
+function tatticaLetter(){ return letterFrom10(countChecked(ttaCheck)); }
+function mentaleLetter(){
+  if(mentaleVals.includes(null)) return null;
+  const sum = mentaleVals.reduce((a,b)=>a+b,0);
+  return letterFromMentale(sum);
+}
+
+function livelloSotto(l){
+  const idx = LEVELS.indexOf(l);
+  if(idx<=0) return "sotto";
+  return LEVELS[idx-1];
+}
+
+function tecnicaLetterFor(situ){
+  if(situ.famiglia==="POTENZA") return tpLetter();
+  if(situ.famiglia==="TOCCO") return ttLetter();
+  return worseLetter(tpLetter(), ttLetter()); // ENTRAMBE = Terzo Colpo
+}
+
+/* ============ NAVIGATION ============ */
+const SCREENS = ["home","fase0","fase1","fase2","risultati"];
+function goTo(s){ screen=s; render(); window.scrollTo(0,0); }
+
+function render(){
+  updateProgress();
+  const main = document.getElementById("main");
+  const nav = document.getElementById("navBar");
+  if(screen==="home"){ main.innerHTML=renderHome(); nav.innerHTML=navHome(); }
+  else if(screen==="fase0"){ main.innerHTML=renderFase0(); nav.innerHTML=navStd("home","fase1", fase0Complete()); bindFase0(); }
+  else if(screen==="fase1"){ main.innerHTML=renderFase1(); nav.innerHTML=navStd("fase0","fase2", fase1Complete()); bindFase1(); }
+  else if(screen==="fase2"){ main.innerHTML=renderFase2(); nav.innerHTML=navStd("fase1","risultati", fase2Complete()); bindFase2(); }
+  else if(screen==="risultati"){ main.innerHTML=renderRisultati(); nav.innerHTML=navRisultati(); }
+}
+
+function updateProgress(){
+  const idx = SCREENS.indexOf(screen);
+  for(let i=0;i<4;i++){
+    const el = document.getElementById("pb"+i);
+    el.className = i<idx-0 ? (i<idx?"done":"") : "";
+  }
+  const order=["home","fase0","fase1","fase2","risultati"];
+  const cur = order.indexOf(screen);
+  for(let i=0;i<4;i++){
+    const el=document.getElementById("pb"+i);
+    el.className = (i+1)<cur ? "done" : (i+1)===cur ? "active" : "";
+  }
+}
+
+function navHome(){
+  return `<button class="btn" onclick="goTo('fase0')">Inizia la diagnosi →</button>`;
+}
+function navStd(back,next,enabled){
+  return `<button class="btn ghost" style="flex:0 0 90px" onclick="goTo('${back}')">← Indietro</button>
+  <button class="btn" ${enabled?"":"disabled"} onclick="goTo('${next}')">Continua →</button>`;
+}
+function navRisultati(){
+  return `<button class="btn ghost" style="flex:0 0 90px" onclick="goTo('fase2')">← Indietro</button>
+  <button class="btn" onclick="resetAll()">Ricomincia</button>`;
+}
+
+function resetAll(){
+  if(!confirm("Vuoi davvero azzerare tutti i dati inseriti?")) return;
+  fase0={}; fase1={}; gambeCheck=[false,false,false,false,false]; tpCheck=[false,false,false,false,false];
+  ttCheck=[false,false,false,false,false]; ttaCheck=new Array(10).fill(false); mentaleVals=[null,null,null];
+  goTo("home");
+}
+
+/* ============ HOME ============ */
+function renderHome(){
+  return `
+  <div class="home-hero">
+    <div class="big">Trova il tuo profilo reale</div>
+    <div class="muted">Prima di allenarti, misura dove sei davvero</div>
+  </div>
+  <div class="card">
+    <h2>Come funziona</h2>
+    <ul class="clean">
+      <li><b style="color:var(--gold)">Fase 0</b> — stima di pancia, 2 minuti, a tavolino: per ognuna delle 7 situazioni scegli il colore che senti più vicino al tuo livello.</li>
+      <li><b style="color:var(--gold)">Fase 1</b> — test in campo: un solo test per situazione, alla soglia dichiarata. Superi o sei un gradino sotto.</li>
+      <li><b style="color:var(--gold)">Fase 2</b> — le quattro celle: Gambe, Tecnica, Tattica, Mentale, compilate una volta sola (Tecnica due volte, Potenza e Tocco).</li>
+      <li><b style="color:var(--gold)">Risultati</b> — la tua mappa completa, il pattern del tuo profilo, il fattore limitante, pronta da condividere su WhatsApp con il tuo coach.</li>
+    </ul>
+    <div class="note">📌 Porta racchetta e un partner o coach in campo per la Fase 1. Le Fasi 0 e 2 puoi farle anche a tavolino, da solo.</div>
+  </div>
+  <div class="card">
+    <h2>Serve un partner o un coach</h2>
+    <p class="muted">Tutti i colpi sono alimentati da compagno, coach o lanciapalle, tranne il Servizio (autoalimentato). Segui lo stesso protocollo ogni volta, per confrontare i risultati onestamente nel tempo.</p>
+  </div>
+  `;
+}
+
+/* ============ FASE 0 ============ */
+function fase0Complete(){ return SITUAZIONI.every(s=>fase0[s.key]!==undefined); }
+
+function renderFase0(){
+  let html = `<div class="card"><h2>Fase 0 — Stima di pancia</h2>
+  <p class="muted">Per ogni situazione, scegli il colore più vicino al tuo livello in partita. Se hai dubbi tra due colori, scegli sempre il più basso.</p>`;
+  SITUAZIONI.forEach(s=>{
+    html += `<div class="situ-block">
+      <div class="situ-title">${s.nome} ${famBadge(s.famiglia)}</div>
+      <div class="pills" data-situ="${s.key}">`;
+    LEVELS.forEach(l=>{
+      const sel = fase0[s.key]===l ? "selected":"";
+      html += `<button type="button" class="pill ${sel}" data-lvl="${l}" onclick="setFase0('${s.key}',${l})">
+        <span class="lvl"><span class="dot dot-${l.toFixed(1)}"></span>${LEVEL_LABEL[l]}</span>${s.fase0[l]}</button>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+function bindFase0(){}
+function setFase0(key,lvl){ fase0[key]=lvl; render(); }
+
+/* ============ FASE 1 ============ */
+function fase1Complete(){ return SITUAZIONI.every(s=> fase1[s.key] && fase1[s.key].risultato!==undefined); }
+
+function renderFase1(){
+  let html = `<div class="card"><h2>Fase 1 — Test in campo</h2>
+  <p class="muted">Un solo test per situazione, al livello dichiarato in Fase 0. Se superi la soglia, quel livello è confermato. Se non la superi, il livello reale è un gradino sotto. Nessun retest.</p></div>`;
+  SITUAZIONI.forEach(s=>{
+    const lvl = fase0[s.key];
+    html += `<div class="card">
+      <div class="situ-title">${s.nome} ${famBadge(s.famiglia)}</div>`;
+    if(lvl===undefined){
+      html += `<p class="muted">Completa prima la Fase 0 per questa situazione.</p></div>`;
+      return;
+    }
+    const t = FASE1[lvl];
+    const zona = s.famiglia==="TOCCO" ? t.tocco : t.potenza;
+    const zonaLabel = s.famiglia==="ENTRAMBE" ? `Zona ${t.tocco} (drop)` : `Zona ${zona}`;
+    html += `<div class="test-info">
+      <div><b>Livello dichiarato:</b> <span class="dot dot-${lvl.toFixed(1)}"></span>${LEVEL_LABEL[lvl]}</div>
+      <div><b>Target:</b> ${zonaLabel} · <b>Soglia:</b> ${t.soglia}/10</div>
+      <div><b>Chi alimenta:</b> ${s.feed}</div>
+    </div>
+    <div class="row" style="align-items:center;gap:10px;">
+      <label style="font-size:.85rem;">Risultato: <input type="number" min="0" max="10" id="input-${s.key}" value="${fase1[s.key]?fase1[s.key].risultato:''}" onchange="setFase1('${s.key}',this.value)"> / 10</label>
+    </div>`;
+    if(fase1[s.key] && fase1[s.key].risultato!==undefined && fase1[s.key].risultato!==""){
+      const passed = fase1[s.key].risultato >= t.soglia;
+      const livelloFinale = passed ? lvl : livelloSotto(lvl);
+      fase1[s.key].livelloFinale = livelloFinale;
+      html += `<div class="esito ${passed?'pass':'fail'}">
+        ${passed ? "✅ Soglia superata — livello confermato:" : "❌ Soglia non superata — livello un gradino sotto:"}
+        <b><span class="dot dot-${livelloFinale==='sotto'?'bianco':livelloFinale.toFixed(1)}"></span>${LEVEL_LABEL[livelloFinale]||"sotto 3.0"}</b>
+      </div>`;
+    }
+    html += `</div>`;
+  });
+  return html;
+}
+function bindFase1(){}
+function setFase1(key,val){
+  const n = val===""?undefined:Math.max(0,Math.min(10,parseInt(val)));
+  fase1[key] = {risultato:n};
+  render();
+}
+
+/* ============ FASE 2 ============ */
+function fase2Complete(){ return mentaleLetter()!==null; } // gate solo su ultima sezione compilata (le checklist possono restare a 0 spuntati validamente, ma richiediamo almeno mentale risposto)
+
+function renderFase2(){
+  return `
+  <div class="card"><h2>Fase 2 — Le quattro celle</h2>
+  <p class="muted">Si compilano una volta sola, non per ogni situazione. Solo TECNICA si sdoppia in Potenza e Tocco.</p></div>
+
+  <div class="card">
+    <h3>🦵 GAMBE — 5 voci universali</h3>
+    <div class="checklist">${GAMBE_ITEMS.map((t,i)=>checkboxRow('gambe',i,gambeCheck[i],t)).join("")}</div>
+    ${resultLine("GAMBE", gambeLetter())}
+  </div>
+
+  <div class="card">
+    <h3>🎾 TECNICA — famiglia POTENZA (Servizio, Risposta, Volée/Attacco)</h3>
+    <div class="checklist">${TECNICA_POTENZA_ITEMS.map((t,i)=>checkboxRow('tp',i,tpCheck[i],t)).join("")}</div>
+    ${resultLine("TECNICA-POTENZA", tpLetter())}
+  </div>
+
+  <div class="card">
+    <h3>🎾 TECNICA — famiglia TOCCO (Terzo Colpo/drop, Kitchen/Dink, Transizione, Difesa)</h3>
+    <div class="checklist">${TECNICA_TOCCO_ITEMS.map((t,i)=>checkboxRow('tt',i,ttCheck[i],t)).join("")}</div>
+    ${resultLine("TECNICA-TOCCO", ttLetter())}
+    <div class="note">📌 Terzo Colpo userà la lettera peggiore tra Potenza (drive) e Tocco (drop).</div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 TATTICA — 10 voci, compila una volta sola</h3>
+    <div class="checklist">${TATTICA_ITEMS.map((t,i)=>checkboxRow('tta',i,ttaCheck[i],t)).join("")}</div>
+    ${resultLine("TATTICA", tatticaLetter())}
+  </div>
+
+  <div class="card">
+    <h3>🧠 MENTALE — scala 1-4, compila una volta sola</h3>
+    ${MENTALE_ITEMS.map((m,i)=>`
+      <div class="scale-item">
+        <p>${i+1}) ${m.q}</p>
+        <div class="scale-opts">${m.opts.map((o,j)=>`<button type="button" class="${mentaleVals[i]===j+1?'sel':''}" onclick="setMentale(${i},${j+1})">${o}</button>`).join("")}</div>
+      </div>`).join("")}
+    ${resultLine("MENTALE", mentaleLetter())}
+  </div>
+  `;
+}
+function checkboxRow(group,i,checked,text){
+  return `<label><input type="checkbox" ${checked?"checked":""} onchange="toggleCheck('${group}',${i},this.checked)"><span>${text}</span></label>`;
+}
+function resultLine(name,letter){
+  if(letter===null) return `<div class="note">Rispondi a tutte le voci per ottenere la lettera ${name}.</div>`;
+  return `<div class="test-info"><b>Risultato ${name}:</b> <span class="letter" style="background:${letterColor(letter)}">${letter}</span></div>`;
+}
+function toggleCheck(group,i,val){
+  const map = {gambe:gambeCheck, tp:tpCheck, tt:ttCheck, tta:ttaCheck};
+  map[group][i]=val;
+  render();
+}
+function setMentale(i,val){ mentaleVals[i]=val; render(); }
+function bindFase2(){}
+
+/* ============ RISULTATI ============ */
+function famBadge(fam){
+  if(fam==="POTENZA") return `<span class="fam-badge fam-potenza">POTENZA</span>`;
+  if(fam==="TOCCO") return `<span class="fam-badge fam-tocco">TOCCO</span>`;
+  return `<span class="fam-badge fam-entrambe">ENTRAMBE</span>`;
+}
+
+function buildMapRows(){
+  const G = gambeLetter(), T = tatticaLetter(), M = mentaleLetter();
+  return SITUAZIONI.map(s=>{
+    const f1 = fase1[s.key] || {};
+    const livello = f1.livelloFinale;
+    const testScore = f1.risultato;
+    const dichiarato = fase0[s.key];
+    const tecnica = tecnicaLetterFor(s);
+    return {situ:s, livello, testScore, dichiarato, gambe:G, tattica:T, tecnica, mentale:M};
+  });
+}
+
+function detectPatterns(rows){
+  const findings = [];
+  rows.forEach(r=>{
+    const letters = [r.gambe,r.tattica,r.tecnica,r.mentale];
+    if(letters.every(l=>l==="D")) findings.push({type:"quarto", situ:r.situ.nome});
+    if(letters.every(l=>l==="A")) findings.push({type:"quinto", situ:r.situ.nome});
+  });
+  // fattore limitante globale: confronta G, T, TP, TT, M
+  const dims = [
+    {name:"GAMBE", letter:gambeLetter(), situazioni:"tutte le situazioni"},
+    {name:"TATTICA", letter:tatticaLetter(), situazioni:"tutte le situazioni"},
+    {name:"MENTALE", letter:mentaleLetter(), situazioni:"tutte le situazioni"},
+    {name:"TECNICA-POTENZA", letter:tpLetter(), situazioni:"Servizio, Risposta, Volée/Attacco"},
+    {name:"TECNICA-TOCCO", letter:ttLetter(), situazioni:"Terzo Colpo, Kitchen/Dink, Transizione, Difesa"},
+  ];
+  const minRank = Math.min(...dims.map(d=>RANK[d.letter]));
+  const worst = dims.filter(d=>RANK[d.letter]===minRank);
+  return {findings, worst, allA: dims.every(d=>d.letter==="A")};
+}
+
+function renderRisultati(){
+  const rows = buildMapRows();
+  const allTested = rows.every(r=>r.livello!==undefined);
+  if(!allTested){
+    return `<div class="card"><h2>Risultati</h2><p class="muted">Completa la Fase 1 per tutte le situazioni per vedere la mappa finale.</p></div>`;
+  }
+  const {findings, worst} = detectPatterns(rows);
+
+  let table = `<table class="map"><tr><th>Situazione</th><th>Livello</th><th>Gambe</th><th>Tattica</th><th>Tecnica</th><th>Mentale</th></tr>`;
+  rows.forEach(r=>{
+    const lc = r.livello==="sotto" ? "var(--bianco)" : LEVEL_COLOR[r.livello];
+    const lLabel = r.livello==="sotto" ? "sotto 3.0" : LEVEL_LABEL[r.livello];
+    const confermato = r.livello===r.dichiarato;
+    const icona = confermato ? "✅" : (r.livello==="sotto" ? "⚠️" : "⬇");
+    table += `<tr>
+      <td class="sit">${r.situ.nome}<br><span style="font-size:.6rem;color:var(--text-dim)">${r.situ.famiglia==="ENTRAMBE"?"Tocco+Potenza":r.situ.famiglia==="POTENZA"?"Potenza":"Tocco"}</span></td>
+      <td><span class="lvl-badge" style="background:${lc}">${lLabel}</span><br><span style="font-size:.6rem;color:var(--text-dim)">test ${r.testScore}/10</span><br><span style="font-size:.58rem;color:var(--text-dim)">Fase 0: ${LEVEL_LABEL[r.dichiarato]} ${icona}</span></td>
+      <td><span class="letter" style="background:${letterColor(r.gambe)}">${r.gambe}</span></td>
+      <td><span class="letter" style="background:${letterColor(r.tattica)}">${r.tattica}</span></td>
+      <td><span class="letter" style="background:${letterColor(r.tecnica)}">${r.tecnica}</span></td>
+      <td><span class="letter" style="background:${letterColor(r.mentale)}">${r.mentale}</span></td>
+    </tr>`;
+  });
+  table += `</table>`;
+
+  let patternHtml = `<div class="pattern-box"><h3>Lettura del tuo profilo</h3>`;
+
+  const sceso = rows.filter(r=> r.livello!==r.dichiarato);
+  if(sceso.length >= 4){
+    patternHtml += `<div class="note">📌 <b>Divario Fase 0 → Fase 1:</b> in ${sceso.length} situazioni su 7 il test ha confermato un gradino sotto quello dichiarato. Un divario ripetuto su più situazioni, non occasionale, può segnalare una difficoltà a vedere i propri errori con chiarezza (sovrastima sistematica) — vale la pena parlarne con il tuo coach, non è un giudizio.</div>`;
+  } else if(sceso.length===0){
+    patternHtml += `<div class="note">📌 <b>Divario Fase 0 → Fase 1:</b> tutte le situazioni confermano il livello dichiarato. Buona consapevolezza di sé.</div>`;
+  }
+
+  const bassi = rows.filter(r=> r.livello==="sotto" || r.livello===3.0);
+  if(bassi.length){
+    patternHtml += `<div class="warn">🎯 <b>Priorità sul LIVELLO, indipendente dalle 4 celle:</b> ${bassi.map(r=> r.situ.nome+" ("+(r.livello==="sotto"?"sotto 3.0":LEVEL_LABEL[r.livello])+")").join(", ")}. Un livello così basso è già di per sé il segnale più diretto, non serve aspettare che sia anche la cella peggiore tra Gambe/Tattica/Tecnica/Mentale: è qui che lavori per primo, a prescindere da come sono uscite le checklist.</div>`;
+  }
+
+  const quarto = findings.filter(f=>f.type==="quarto");
+  const quinto = findings.filter(f=>f.type==="quinto");
+  if(quarto.length){
+    patternHtml += `<div class="warn">⚠️ <b>Quarto pattern — risultato compensato:</b> in ${quarto.map(f=>f.situ).join(", ")} il livello è confermato ma tutte e 4 le celle sono D. Il colpo funziona ma è sostenuto per compensazione, non per solidità. Lavora sulle quattro celle insieme prima di pensare a salire di livello.</div>`;
+  }
+  if(quinto.length){
+    patternHtml += `<div class="note">✅ <b>Tutto confermato:</b> in ${quinto.map(f=>f.situ).join(", ")} tutte e 4 le celle sono A. Fondamentali solidi, nessuna compensazione. Consolida per 4-8 settimane, poi riverifica al gradino sopra.</div>`;
+  }
+  if(worst.length && worst[0].letter!=="A"){
+    if(worst.length===1){
+      const w = worst[0];
+      patternHtml += `<p class="muted"><b style="color:var(--gold)">Fattore limitante isolato:</b> ${w.name} (${w.letter}) — riguarda ${w.situazioni}. È qui che conviene concentrare le prossime 4-8 settimane.</p>`;
+    } else {
+      const names = worst.map(w=>w.name).join(" + ");
+      patternHtml += `<p class="muted"><b style="color:var(--gold)">Punti deboli multipli, stesso livello (${worst[0].letter}):</b> ${names}. Se sono collegati (es. entrambe le famiglie TECNICA) probabilmente è un solo lavoro di base che si propaga a più situazioni; se sono dimensioni diverse e scollegate, trattali uno alla volta, non tutti insieme.</p>`;
+    }
+  } else if(worst.length && worst[0].letter==="A"){
+    patternHtml += `<p class="muted">Nessun fattore limitante isolato: tutte le dimensioni sono già ad A.</p>`;
+  }
+  patternHtml += `</div>`;
+
+  const drillNote = `<div class="card"><h3>Dove lavorare</h3><p class="muted">Vai al capitolo della situazione con la cella più bassa nella tabella sopra e lavora i drill lì indicati per 4-8 settimane, poi riverifica.</p>
+  <ul class="clean">${SITUAZIONI.map(s=>`<li>${s.nome} → Capitolo ${s.cap}</li>`).join("")}</ul></div>`;
+
+  return `
+  <div class="card">
+    <h2>La tua Mappa Diagnosi</h2>
+    ${table}
+  </div>
+  ${patternHtml}
+  ${drillNote}
+  <div class="card">
+    <h3>Condividi il risultato</h3>
+    <button class="btn secondary" onclick="shareWhatsApp()">📤 Invia su WhatsApp</button>
+    <button class="btn ghost" onclick="copyText()">📋 Copia testo</button>
+  </div>
+  `;
+}
+
+function buildExportText(){
+  const rows = buildMapRows();
+  let txt = `🥒 MAPPA DIAGNOSI — Pickleball\n(Continuiamo a Giocare a Pickleball, Da 3.5 a 5.5)\n\n`;
+  rows.forEach(r=>{
+    const lLabel = r.livello==="sotto" ? "sotto 3.0" : LEVEL_LABEL[r.livello];
+    const confermato = r.livello===r.dichiarato;
+    const esitoLabel = confermato ? "confermato" : (r.livello==="sotto" ? "sotto la soglia minima" : "sceso di un gradino");
+    txt += `${r.situ.nome}: Fase 0 = ${LEVEL_LABEL[r.dichiarato]} → test ${r.testScore}/10 → Livello ${lLabel} (${esitoLabel}) | Gambe ${r.gambe} · Tattica ${r.tattica} · Tecnica ${r.tecnica} · Mentale ${r.mentale}\n`;
+  });
+  const {findings, worst} = detectPatterns(rows);
+  const bassi = rows.filter(r=> r.livello==="sotto" || r.livello===3.0);
+  if(bassi.length){
+    txt += `🎯 Priorità sul LIVELLO (a prescindere dalle 4 celle): ${bassi.map(r=> r.situ.nome+" ("+(r.livello==="sotto"?"sotto 3.0":LEVEL_LABEL[r.livello])+")").join(", ")}\n`;
+  }
+  const quarto = findings.filter(f=>f.type==="quarto").map(f=>f.situ);
+  const quinto = findings.filter(f=>f.type==="quinto").map(f=>f.situ);
+  txt += `\n`;
+  if(quarto.length) txt += `⚠️ Risultato compensato (tutte D) in: ${quarto.join(", ")}\n`;
+  if(quinto.length) txt += `✅ Tutto confermato (tutte A) in: ${quinto.join(", ")}\n`;
+  if(worst.length && worst[0].letter!=="A"){
+    txt += `Fattore limitante: ${worst.map(w=>w.name+" ("+w.letter+")").join(" + ")}\n`;
+  }
+  return txt;
+}
+function shareWhatsApp(){
+  const txt = buildExportText();
+  window.open("https://wa.me/?text="+encodeURIComponent(txt), "_blank");
+}
+function copyText(){
+  const txt = buildExportText();
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>alert("Testo copiato negli appunti."));
+  } else {
+    alert(txt);
+  }
+}
+
+render();
+</script>
+</body>
+</html>
