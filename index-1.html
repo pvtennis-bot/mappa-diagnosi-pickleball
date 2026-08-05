@@ -491,10 +491,10 @@ function renderRisultati(){
   const quarto = findings.filter(f=>f.type==="quarto");
   const quinto = findings.filter(f=>f.type==="quinto");
   if(quarto.length){
-    patternHtml += `<div class="warn">⚠️ <b>Quarto pattern — risultato compensato:</b> in ${quarto.map(f=>f.situ).join(", ")} il livello è confermato ma tutte e 4 le celle sono D. Il colpo funziona ma è sostenuto per compensazione, non per solidità. Lavora sulle quattro celle insieme prima di pensare a salire di livello.</div>`;
+    patternHtml += `<div class="warn">⚠️ <b>Quarto pattern — risultato compensato:</b> in ${quarto.map(f=>f.situ).join(", ")} il livello è confermato ma tutte e 4 le celle sono D. Il colpo funziona ma è sostenuto per compensazione, non per solidità. Non è un caso che compaia insieme in più situazioni: Gambe/Tattica/Mentale sono condivisi e Tecnica è per famiglia, quindi il pattern si propaga a tutta la famiglia coinvolta. Lavora sulle quattro dimensioni insieme prima di pensare a salire di livello.</div>`;
   }
   if(quinto.length){
-    patternHtml += `<div class="note">✅ <b>Tutto confermato:</b> in ${quinto.map(f=>f.situ).join(", ")} tutte e 4 le celle sono A. Fondamentali solidi, nessuna compensazione. Consolida per 4-8 settimane, poi riverifica al gradino sopra.</div>`;
+    patternHtml += `<div class="note">✅ <b>Tutto confermato:</b> in ${quinto.map(f=>f.situ).join(", ")} tutte e 4 le celle sono A. Fondamentali solidi, nessuna compensazione — anche qui il risultato si estende naturalmente a tutta la famiglia coinvolta. Consolida per 4-8 settimane, poi riverifica al gradino sopra per ogni situazione della famiglia.</div>`;
   }
   if(worst.length && worst[0].letter!=="A"){
     if(worst.length===1){
