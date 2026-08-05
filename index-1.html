@@ -271,7 +271,7 @@ function renderHome(){
     <ul class="clean">
       <li><b style="color:var(--gold)">Fase 0</b> — stima di pancia, 2 minuti, a tavolino: per ognuna delle 7 situazioni scegli il colore che senti più vicino al tuo livello.</li>
       <li><b style="color:var(--gold)">Fase 1</b> — test in campo: un solo test per situazione, alla soglia dichiarata. Superi o sei un gradino sotto.</li>
-      <li><b style="color:var(--gold)">Fase 2</b> — le quattro celle: Gambe, Tecnica, Tattica, Mentale, compilate una volta sola (Tecnica due volte, Potenza e Tocco).</li>
+      <li><b style="color:var(--gold)">Fase 2</b> — le quattro dimensioni: Gambe, Tecnica, Tattica, Mentale, compilate una volta sola (Tecnica due volte, Potenza e Tocco).</li>
       <li><b style="color:var(--gold)">Risultati</b> — la tua mappa completa, il pattern del tuo profilo, il fattore limitante, pronta da condividere su WhatsApp con il tuo coach.</li>
     </ul>
     <div class="note">📌 Porta racchetta e un partner o coach in campo per la Fase 1. Le Fasi 0 e 2 puoi farle anche a tavolino, da solo.</div>
@@ -356,8 +356,8 @@ function fase2Complete(){ return mentaleLetter()!==null; } // gate solo su ultim
 
 function renderFase2(){
   return `
-  <div class="card"><h2>Fase 2 — Le quattro celle</h2>
-  <p class="muted">Si compilano una volta sola, non per ogni situazione. Solo TECNICA si sdoppia in Potenza e Tocco.</p></div>
+  <div class="card"><h2>Fase 2 — Le quattro dimensioni</h2>
+  <p class="muted">Si compilano una volta sola, non per ogni situazione (sono colonne uniformi sulla mappa). Solo TECNICA si sdoppia in Potenza e Tocco.</p></div>
 
   <div class="card">
     <h3>🦵 GAMBE — 5 voci universali</h3>
